@@ -1,0 +1,143 @@
+@page "/todo"
+@using TodoApp.Models
+@using TodoApp.Services
+@inject TodoService TodoService
+
+<PageTitle>ToDo リスト</PageTitle>
+
+<h1>ToDo リスト</h1>
+
+<div class="todo-container">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="新しいタスクを入力..." @bind="newTodoTitle" @bind:event="oninput" @onkeypress="HandleKeyPress" />
+        <button class="btn btn-primary" @onclick="AddTodo" disabled="@string.IsNullOrWhiteSpace(newTodoTitle)">追加</button>
+    </div>
+
+    @if (todoItems.Any())
+    {
+        <div class="todo-filters mb-3">
+            <div class="btn-group" role="group">
+                <button class="btn @(filter == "all" ? "btn-primary" : "btn-outline-primary")" @onclick='() => FilterTodos("all")'>すべて</button>
+                <button class="btn @(filter == "active" ? "btn-primary" : "btn-outline-primary")" @onclick='() => FilterTodos("active")'>未完了</button>
+                <button class="btn @(filter == "completed" ? "btn-primary" : "btn-outline-primary")" @onclick='() => FilterTodos("completed")'>完了済み</button>
+            </div>
+            @if (TodoService.GetCompletedItems().Any())
+            {
+                <button class="btn btn-outline-danger ms-2" @onclick="ClearCompleted">完了済みを削除</button>
+            }
+        </div>
+
+        <ul class="list-group">
+            @foreach (var item in filteredItems)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <input type="checkbox" checked="@item.IsDone" @onchange="() => ToggleTodo(item.Id)" />
+                        <span class="ms-2 @(item.IsDone ? "text-decoration-line-through text-muted" : "")">@item.Title</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveTodo(item.Id)">削除</button>
+                </li>
+            }
+        </ul>
+
+        <div class="mt-3">
+            <small class="text-muted">@GetStatusText()</small>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            タスクがありません。新しいタスクを追加してください。
+        </div>
+    }
+</div>
+
+@code {
+    private string newTodoTitle = string.Empty;
+    private List<TodoItem> todoItems = new();
+    private List<TodoItem> filteredItems = new();
+    private string filter = "all";
+
+    protected override void OnInitialized()
+    {
+        UpdateTodoList();
+    }
+
+    private void UpdateTodoList()
+    {
+        todoItems = TodoService.GetAllItems().ToList();
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        filteredItems = filter switch
+        {
+            "active" => TodoService.GetActiveItems().ToList(),
+            "completed" => TodoService.GetCompletedItems().ToList(),
+            _ => TodoService.GetAllItems().ToList()
+        };
+    }
+
+    private void FilterTodos(string filterName)
+    {
+        filter = filterName;
+        ApplyFilter();
+    }
+
+    private void AddTodo()
+    {
+        if (!string.IsNullOrWhiteSpace(newTodoTitle))
+        {
+            TodoService.AddItem(newTodoTitle);
+            newTodoTitle = string.Empty;
+            UpdateTodoList();
+        }
+    }
+
+    private void ToggleTodo(Guid id)
+    {
+        TodoService.ToggleItemStatus(id);
+        UpdateTodoList();
+    }
+
+    private void RemoveTodo(Guid id)
+    {
+        TodoService.RemoveItem(id);
+        UpdateTodoList();
+    }
+
+    private void ClearCompleted()
+    {
+        TodoService.ClearCompletedItems();
+        UpdateTodoList();
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newTodoTitle))
+        {
+            AddTodo();
+        }
+    }
+
+    private string GetStatusText()
+    {
+        var activeCount = TodoService.GetActiveItems().Count();
+        var completedCount = TodoService.GetCompletedItems().Count();
+        var totalCount = activeCount + completedCount;
+
+        return $"{activeCount} 件の未完了タスク / 合計 {totalCount} 件";
+    }
+}
+
+<style>
+    .todo-container {
+        max-width: 800px;
+    }
+
+    .todo-filters {
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
