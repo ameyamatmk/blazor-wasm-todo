@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch and Debug Blazor WebAssembly Application",
+            "type": "blazorwasm",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "url": "http://localhost:5012",
+            "browser": "chrome",
+            "preLaunchTask": "build",
+            "hosted": false,
+            "webRoot": "${workspaceFolder}",
+            "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+            "trace": true,
+            "sourceFileMap": {
+                "/": "${workspaceFolder}"
+            }
+        }
+    ]
+}

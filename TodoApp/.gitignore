@@ -28,7 +28,6 @@ dist/
 
 # Visual Studio files
 .vs/
-.vscode/
 *_i.c
 *_p.c
 *_h.h
