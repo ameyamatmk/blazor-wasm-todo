@@ -5,16 +5,16 @@
             "name": "Launch and Debug Blazor WebAssembly Application",
             "type": "blazorwasm",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/TodoApp",
             "url": "http://localhost:5012",
             "browser": "chrome",
             "preLaunchTask": "build",
             "hosted": false,
-            "webRoot": "${workspaceFolder}",
+            "webRoot": "${workspaceFolder}/TodoApp",
             "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
             "trace": true,
             "sourceFileMap": {
-                "/": "${workspaceFolder}"
+                "/": "${workspaceFolder}/TodoApp"
             }
         }
     ]
